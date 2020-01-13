@@ -1,4 +1,4 @@
-package kr.ac.hongik.apl.demo;
+package kr.ac.hongik.apl.demo.Configuration;
 
 import org.apache.kafka.clients.producer.ProducerConfig;
 import org.apache.kafka.common.serialization.StringSerializer;
@@ -18,7 +18,7 @@ import java.util.Map;
 @Configuration
 @PropertySource("classpath:kafka.properties")
 @EnableKafka
-public class KafkaConfiguration {
+public class KafkaProducerConfiguration {
 	@Autowired
 	private Environment env;
 
