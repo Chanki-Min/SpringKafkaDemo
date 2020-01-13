@@ -1,17 +1,13 @@
 package kr.ac.hongik.apl.demo.Controller;
 
-import kr.ac.hongik.apl.demo.Listener.KafkaListenerService;
+import kr.ac.hongik.apl.demo.Service.KafkaListenerService;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.kafka.config.KafkaListenerContainerFactory;
 import org.springframework.kafka.core.KafkaTemplate;
-import org.springframework.kafka.listener.ConcurrentMessageListenerContainer;
 import org.springframework.stereotype.Controller;
-import org.springframework.stereotype.Service;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
-
-import java.time.LocalDateTime;
+import org.springframework.web.bind.annotation.ResponseBody;
 
 @Controller
 @Slf4j
@@ -23,8 +19,16 @@ public class KafkaProducingController {
 	KafkaListenerService kafkaListenerService;
 
 	@RequestMapping(value="/push")
+	@ResponseBody
 	public String getData(@RequestParam(value = "message", required = true, defaultValue = "") String message ){
 		kafkaTemplate.send("demoTopic", message);
 		return String.format("message published to kafka, msg : %s", message);
+	}
+
+	@RequestMapping(value = "/start")
+	@ResponseBody
+	public String start() {
+		kafkaListenerService.startConsumer();
+		return "started";
 	}
 }
