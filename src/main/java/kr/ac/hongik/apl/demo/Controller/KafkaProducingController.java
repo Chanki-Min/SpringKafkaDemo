@@ -21,7 +21,7 @@ public class KafkaProducingController {
 	@RequestMapping(value="/push")
 	@ResponseBody
 	public String getData(@RequestParam(value = "message", required = true, defaultValue = "") String message ){
-		kafkaTemplate.send("demoTopic", message);
+		kafkaTemplate.send("Lee", message);
 		return String.format("message published to kafka, msg : %s", message);
 	}
 

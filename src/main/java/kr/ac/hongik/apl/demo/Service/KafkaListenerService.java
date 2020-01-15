@@ -2,6 +2,7 @@ package kr.ac.hongik.apl.demo.Service;
 
 import lombok.extern.slf4j.Slf4j;
 import org.apache.kafka.clients.consumer.*;
+import org.apache.kafka.common.TopicPartition;
 import org.springframework.beans.factory.DisposableBean;
 import org.springframework.beans.factory.InitializingBean;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -38,16 +39,45 @@ public class KafkaListenerService implements InitializingBean, DisposableBean {
 
 			List<ConsumerRecord<String, String>> buffer = new ArrayList<>();
 			while (true) {
-				ConsumerRecords<String, String> records = consumer.poll(Duration.ofMillis(100));
-				for (ConsumerRecord<String, String> record: records) {
-					buffer.add(record);
-					log.info(String.format("records size = %d", records.count()));
-					log.info(String.format("buffer size = %d", buffer.size()));
+
+			/*ConsumerRecords<String, String> records = consumer.poll(Duration.ofMillis(100));
+			for (ConsumerRecord<String, String> record: records) {
+				buffer.add(record);
+				log.info(String.format("records size = %d", records.count()));
+				log.info(String.format("buffer size = %d", buffer.size()));
+			}
+
+			int check=0;
+			long lastOffset=0;
+			if (buffer.size() >= Integer.parseInt((String) listerServiceConfigs.get(MIN_BATCH_SIZE))) {
+				for(ConsumerRecord<String,String> R : buffer){
+					System.out.println(R.offset() + " : " + R.value());
+					++check;
+					if(check == Integer.parseInt((String)listerServiceConfigs.get(MIN_BATCH_SIZE))){
+						lastOffset = R.offset();
+						break;
+					}
 				}
-				if (buffer.size() >= Integer.parseInt((String) listerServiceConfigs.get(MIN_BATCH_SIZE))) {
-					buffer.forEach(System.out::println);
-					consumer.commitSync();
-					buffer.clear();
+				consumer.commitSync();
+				buffer.clear();
+			}*/
+
+				ConsumerRecords<String, String> records = consumer.poll(Duration.ofMillis(Long.MAX_VALUE));
+				for(TopicPartition partition : records.partitions()){
+					List<ConsumerRecord<String,String>> partitionRecords = records.records(partition);
+					long lastOffset=0;
+					for( ConsumerRecord<String,String> record : partitionRecords){
+						lastOffset = record.offset(); // 제한 시간안에 안올 때를 대비해서 매번 갱신
+						buffer.add(record);
+						log.info(String.format("buffer size = %d , offset : %d", buffer.size(),record.offset()));
+						System.out.println(record.value());
+						if(buffer.size() == Integer.parseInt((String)listerServiceConfigs.get(MIN_BATCH_SIZE))){
+							//전송
+							buffer.clear();
+							System.out.println("consumed 1 batch");
+							consumer.commitSync(Collections.singletonMap(partition,new OffsetAndMetadata(lastOffset+1)));
+						}
+					}
 				}
 			}
 		} finally {
@@ -68,6 +98,6 @@ public class KafkaListenerService implements InitializingBean, DisposableBean {
 
 	@Override
 	public void afterPropertiesSet() throws Exception {
-		asyncExecutionService.run(this::startConsumer);
+		//asyncExecutionService.run(this::startConsumer);
 	}
 }
