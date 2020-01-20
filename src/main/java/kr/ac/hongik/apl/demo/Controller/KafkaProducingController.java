@@ -4,6 +4,9 @@ import kr.ac.hongik.apl.demo.Service.KafkaListenerService;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.kafka.core.KafkaTemplate;
+import org.springframework.scheduling.annotation.EnableScheduling;
+import org.springframework.scheduling.annotation.Scheduled;
+import org.springframework.stereotype.Component;
 import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
@@ -18,6 +21,7 @@ public class KafkaProducingController {
 	@Autowired
 	KafkaListenerService kafkaListenerService;
 
+
 	@RequestMapping(value="/push")
 	@ResponseBody
 	public String getData(@RequestParam(value = "message", required = true, defaultValue = "") String message ){
@@ -25,10 +29,21 @@ public class KafkaProducingController {
 		return String.format("message published to kafka, msg : %s", message);
 	}
 
+
 	@RequestMapping(value = "/start")
 	@ResponseBody
 	public String start() {
 		kafkaListenerService.startConsumer();
 		return "started";
 	}
+
+	@RequestMapping(value = "/shutdown")
+	@ResponseBody
+	public String close() {
+		kafkaListenerService.shutdown();
+		return "shut down";
+	}
+
+
+
 }

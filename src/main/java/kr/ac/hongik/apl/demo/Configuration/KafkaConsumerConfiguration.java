@@ -1,6 +1,7 @@
 package kr.ac.hongik.apl.demo.Configuration;
 
 
+import kr.ac.hongik.apl.demo.Sensor.Sensor;
 import kr.ac.hongik.apl.demo.Service.KafkaListenerService;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.kafka.clients.consumer.ConsumerConfig;
@@ -15,6 +16,7 @@ import org.springframework.kafka.config.KafkaListenerContainerFactory;
 import org.springframework.kafka.core.ConsumerFactory;
 import org.springframework.kafka.core.DefaultKafkaConsumerFactory;
 import org.springframework.kafka.listener.ConcurrentMessageListenerContainer;
+import org.springframework.kafka.support.serializer.JsonDeserializer;
 
 import java.util.*;
 
@@ -34,18 +36,18 @@ public class KafkaConsumerConfiguration {
 		props.put(ConsumerConfig.GROUP_ID_CONFIG, "Lee");
 
 		props.put(ConsumerConfig.KEY_DESERIALIZER_CLASS_CONFIG, StringDeserializer.class);
-		props.put(ConsumerConfig.VALUE_DESERIALIZER_CLASS_CONFIG, StringDeserializer.class);
+		props.put(ConsumerConfig.VALUE_DESERIALIZER_CLASS_CONFIG, JsonDeserializer.class);
 		return props;
 	}
 
 	@Bean
-	public ConsumerFactory<String, String> consumerFactory() {
+	public ConsumerFactory<String, Sensor> consumerFactory() {
 		return new DefaultKafkaConsumerFactory<>(consumerConfigs());
 	}
 
 	@Bean
-	public KafkaListenerContainerFactory<ConcurrentMessageListenerContainer<String,String>> kafkaListenerContainerFactory() {
-		ConcurrentKafkaListenerContainerFactory<String, String> kafkaListenerContainerFactory = new ConcurrentKafkaListenerContainerFactory<>();
+	public KafkaListenerContainerFactory<ConcurrentMessageListenerContainer<String, Sensor>> kafkaListenerContainerFactory() {
+		ConcurrentKafkaListenerContainerFactory<String, Sensor> kafkaListenerContainerFactory = new ConcurrentKafkaListenerContainerFactory<>();
 		kafkaListenerContainerFactory.setConsumerFactory(consumerFactory());
 		return kafkaListenerContainerFactory;
 	}
