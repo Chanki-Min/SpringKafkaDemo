@@ -1,6 +1,5 @@
 package kr.ac.hongik.apl.demo.Service;
 
-import kr.ac.hongik.apl.demo.Sensor.Sensor;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.kafka.clients.consumer.*;
 import org.apache.kafka.common.TopicPartition;
@@ -32,7 +31,7 @@ public class KafkaListenerService implements InitializingBean, DisposableBean {
 	@Autowired
 	private AsyncExecutionService asyncExecutionService;
 
-	private KafkaConsumer<String, Sensor> consumer = null;
+	private KafkaConsumer<String, Object> consumer = null;
 
 	@Async("threadPoolTaskExecutor")
 	public void startConsumer() {
@@ -44,10 +43,10 @@ public class KafkaListenerService implements InitializingBean, DisposableBean {
 			long lastOffset=0;
 			TopicPartition p = null;
 			timeOut = 0;
-			List<ConsumerRecord<String, Sensor>> buffer = new ArrayList<>(); // 로컬 저장
+			List<ConsumerRecord<String, Object>> buffer = new ArrayList<>(); // 로컬 저장
 			while (true) {
 				start = System.currentTimeMillis();
-				ConsumerRecords<String, Sensor> records = consumer.poll(Duration.ofMillis(1000));
+				ConsumerRecords<String, Object> records = consumer.poll(Duration.ofMillis(1000));
 				end = System.currentTimeMillis();
 				Interval = (end - start)/1000;
 				timeOut += Interval;
@@ -66,8 +65,8 @@ public class KafkaListenerService implements InitializingBean, DisposableBean {
 				for(TopicPartition partition : records.partitions()){
 					timeOut = 0;
 					p = partition;
-					List<ConsumerRecord<String,Sensor>> partitionRecords = records.records(partition);
-					for( ConsumerRecord<String, Sensor> record : partitionRecords){
+					List<ConsumerRecord<String,Object>> partitionRecords = records.records(partition);
+					for( ConsumerRecord<String, Object> record : partitionRecords){
 						lastOffset = record.offset();
 						// 최신 오프셋을 버퍼가 기준치를 충족 했을 때만 if문 안에서 업데이트 해줄 수 있지만,
 						// 타임 아웃에도 읽은 만큼을 커밋해줘야하기 때문에 항상 기준치 크기만큼 커밋되는 것이 아니라
