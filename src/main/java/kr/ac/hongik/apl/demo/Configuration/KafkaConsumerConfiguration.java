@@ -1,8 +1,8 @@
 package kr.ac.hongik.apl.demo.Configuration;
 
 
-import kr.ac.hongik.apl.demo.Sensor.Sensor;
 import kr.ac.hongik.apl.demo.Service.KafkaListenerService;
+import kr.ac.hongik.apl.demo.sensordata.Sensor;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.kafka.clients.consumer.ConsumerConfig;
 import org.apache.kafka.common.serialization.StringDeserializer;
@@ -17,8 +17,11 @@ import org.springframework.kafka.core.ConsumerFactory;
 import org.springframework.kafka.core.DefaultKafkaConsumerFactory;
 import org.springframework.kafka.listener.ConcurrentMessageListenerContainer;
 import org.springframework.kafka.support.serializer.JsonDeserializer;
+import org.springframework.kafka.support.serializer.JsonSerializer;
 
-import java.util.*;
+import java.util.Arrays;
+import java.util.HashMap;
+import java.util.Map;
 
 @Slf4j
 @Configuration
@@ -34,17 +37,21 @@ public class KafkaConsumerConfiguration {
 		props.put(ConsumerConfig.BOOTSTRAP_SERVERS_CONFIG, env.getProperty(ConsumerConfig.BOOTSTRAP_SERVERS_CONFIG));
 		props.put(ConsumerConfig.ENABLE_AUTO_COMMIT_CONFIG, false);
 		props.put(ConsumerConfig.GROUP_ID_CONFIG, "Lee");
-
+		props.put(JsonSerializer.ADD_TYPE_INFO_HEADERS, false);
 		props.put(ConsumerConfig.KEY_DESERIALIZER_CLASS_CONFIG, StringDeserializer.class);
 		props.put(ConsumerConfig.VALUE_DESERIALIZER_CLASS_CONFIG, JsonDeserializer.class);
+		props.put(JsonDeserializer.TRUSTED_PACKAGES,"com.scheduledproducer.scheduledproducer.sensordata");
 		return props;
 	}
 
 	@Bean
 	public ConsumerFactory<String, Sensor> consumerFactory() {
-		return new DefaultKafkaConsumerFactory<>(consumerConfigs());
-	}
 
+
+		return new DefaultKafkaConsumerFactory<>(consumerConfigs(), new StringDeserializer(),
+				new JsonDeserializer<>(Sensor.class));
+	}
+//	new JsonDeserializer<>(Sensor.class)
 	@Bean
 	public KafkaListenerContainerFactory<ConcurrentMessageListenerContainer<String, Sensor>> kafkaListenerContainerFactory() {
 		ConcurrentKafkaListenerContainerFactory<String, Sensor> kafkaListenerContainerFactory = new ConcurrentKafkaListenerContainerFactory<>();

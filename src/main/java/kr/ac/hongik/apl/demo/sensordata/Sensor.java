@@ -1,6 +1,4 @@
-package kr.ac.hongik.apl.demo.Sensor;
-
-import org.springframework.stereotype.Component;
+package kr.ac.hongik.apl.demo.sensordata;
 
 public class Sensor {
         public String date;
