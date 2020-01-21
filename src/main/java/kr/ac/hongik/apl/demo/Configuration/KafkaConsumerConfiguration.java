@@ -1,6 +1,8 @@
 package kr.ac.hongik.apl.demo.Configuration;
 
 
+import kr.ac.hongik.apl.demo.Service.ConsumingPbftClientBuffer;
+import kr.ac.hongik.apl.demo.Service.ConsumingPbftClientImmediate;
 import kr.ac.hongik.apl.demo.Service.KafkaListenerService;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.kafka.clients.consumer.ConsumerConfig;
@@ -17,7 +19,9 @@ import org.springframework.kafka.core.DefaultKafkaConsumerFactory;
 import org.springframework.kafka.listener.ConcurrentMessageListenerContainer;
 import org.springframework.kafka.support.serializer.JsonDeserializer;
 
-import java.util.*;
+import java.util.Arrays;
+import java.util.HashMap;
+import java.util.Map;
 
 @Slf4j
 @Configuration
@@ -56,6 +60,23 @@ public class KafkaConsumerConfiguration {
 		Map<String, Object> props = new HashMap<>();
 		props.put(KafkaListenerService.TOPICS, Arrays.asList(env.getProperty(KafkaListenerService.TOPICS)));
 		props.put(KafkaListenerService.MIN_BATCH_SIZE, env.getProperty(KafkaListenerService.MIN_BATCH_SIZE));
+		return props;
+	}
+
+	@Bean(name = "bufferClientConfigs")
+	public Map<String, Object> bufferClientConfigs() {
+		Map<String, Object> props = new HashMap<>();
+		log.info("Buff con start");
+		props.put(ConsumingPbftClientBuffer.TOPICS, Arrays.asList(env.getProperty(ConsumingPbftClientBuffer.TOPICS)));
+		props.put(ConsumingPbftClientBuffer.MIN_BATCH_SIZE, env.getProperty(ConsumingPbftClientBuffer.MIN_BATCH_SIZE));
+		return props;
+	}
+	@Bean(name = "ImmediateClientConfigs")
+	public Map<String, Object> ImmediateServiceConfigs() {
+		Map<String, Object> props = new HashMap<>();
+		log.info("Imme con start");
+		props.put(ConsumingPbftClientImmediate.TOPICS, Arrays.asList(env.getProperty(ConsumingPbftClientImmediate.TOPICS)));
+		props.put(ConsumingPbftClientImmediate.MIN_BATCH_SIZE, env.getProperty(ConsumingPbftClientImmediate.MIN_BATCH_SIZE));
 		return props;
 	}
 }

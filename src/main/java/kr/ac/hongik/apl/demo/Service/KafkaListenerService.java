@@ -18,7 +18,7 @@ import java.util.concurrent.atomic.AtomicBoolean;
 @Slf4j
 @Service
 public class KafkaListenerService implements InitializingBean, DisposableBean {
-	public static final String TOPICS = "kafka.listener.service.topic";
+	public static final String TOPICS = "topic3"; // lee1 은 properties 명시되어있느걸로 테스트
 	public static final String MIN_BATCH_SIZE = "kafka.listener.service.minBatchSize";
 	private final AtomicBoolean closed = new AtomicBoolean(false);
 
@@ -58,7 +58,7 @@ public class KafkaListenerService implements InitializingBean, DisposableBean {
 						consumer.commitSync(Collections.singletonMap(p,new OffsetAndMetadata(lastOffset+1))); // 오프셋 커밋
 					}
 					else{
-						log.info("no data");
+						log.info("no data###");
 					}
 				}
 
