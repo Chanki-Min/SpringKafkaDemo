@@ -75,7 +75,6 @@ public class KafkaListenerService implements InitializingBean, DisposableBean {
 						buffer.add(record); // buffer에 담기
 						log.info(String.format("buffer size = %d , offset : %d , value : %s", buffer.size(),record.offset(),record.value()));
 						if(buffer.size() == Integer.parseInt((String)listerServiceConfigs.get(MIN_BATCH_SIZE))){ // 버퍼가 기준치만큼 차면
-							//전송
 							buffer.clear(); // 버퍼 초기화
 							log.info("consumed 1 batch");
 							consumer.commitSync(Collections.singletonMap(partition,new OffsetAndMetadata(lastOffset+1))); // 오프셋 커밋
@@ -87,7 +86,9 @@ public class KafkaListenerService implements InitializingBean, DisposableBean {
 			// 정상적으로 아토믹 불리언이 false이라면 예외를 무시하고 종료한다
 			if (!closed.get()) throw e;
 		} finally {
+
 			consumer.close();
+			System.out.println("끝났지렁");
 		}
 	}
 

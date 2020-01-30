@@ -1,7 +1,11 @@
 package kr.ac.hongik.apl.demo.Controller;
 
+import com.fasterxml.jackson.core.JsonProcessingException;
+import com.fasterxml.jackson.core.type.TypeReference;
+import com.fasterxml.jackson.databind.ObjectMapper;
 import kr.ac.hongik.apl.demo.Service.KafkaListenerService;
 import lombok.extern.slf4j.Slf4j;
+import org.apache.kafka.common.protocol.types.Field;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.kafka.core.KafkaTemplate;
 import org.springframework.scheduling.annotation.EnableScheduling;
@@ -12,11 +16,16 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.ResponseBody;
 
+import java.util.Map;
+
 @Controller
 @Slf4j
 public class KafkaProducingController {
 	@Autowired
-	KafkaTemplate<String, String> kafkaTemplate;
+	KafkaTemplate<String, Object> kafkaTemplate;
+
+	ObjectMapper objectMapper = new ObjectMapper();
+
 
 	@Autowired
 	KafkaListenerService kafkaListenerService;
@@ -24,9 +33,11 @@ public class KafkaProducingController {
 
 	@RequestMapping(value="/push")
 	@ResponseBody
-	public String getData(@RequestParam(value = "message", required = true, defaultValue = "") String message ){
-		kafkaTemplate.send("Lee", message);
-		return String.format("message published to kafka, msg : %s", message);
+	public String getData(@RequestParam(value = "message", required = true, defaultValue = "") String message ) throws JsonProcessingException {
+		String jsonProcess = "{\"message\":\""+message+"\"}";
+		Map objectProcess = objectMapper.readValue(jsonProcess, new TypeReference<Map<String,String>>() {});
+		kafkaTemplate.send("Lee2", objectProcess);
+		return String.format("message published to kafka, msg : %s", jsonProcess);
 	}
 
 
@@ -43,7 +54,4 @@ public class KafkaProducingController {
 		kafkaListenerService.shutdown();
 		return "shut down";
 	}
-
-
-
 }
